@@ -71,9 +71,29 @@ module.exports = {
       });
 
       const embed = new EmbedBuilder()
-        .setColor(0x0099ff)
-        .setTitle("🎟️ Support Ticket System")
-        .setDescription("Click the button below to open a support ticket.");
+        .setColor(0x1f8b4c)
+        .setTitle("🎟️ Welcome to DarkEyes Store Support")
+        .setDescription(
+          `At **DarkEyes Store**, we offer the best deals on OTTs, software, keys, games, and much more!\n\nIf you have any issues or inquiries, feel free to open a support ticket by clicking the button below. Our support team will be with you shortly.`
+        )
+        .setThumbnail("https://i.postimg.cc/Ss2mpf93/logo.gif")
+        .addFields(
+          {
+            name: "💡 How to Use",
+            value:
+              "1. Click the button below to create a ticket.\n2. Provide all necessary details.\n3. Our support team will get back to you as soon as possible.",
+          },
+          {
+            name: "🛒 Shop with Us",
+            value:
+              "[Visit DarkEyes Store](https://darkeyesstore.com) for more exciting offers and products!",
+          }
+        )
+        .setImage("https://i.postimg.cc/nzChhtyd/main.gif")
+        .setFooter({
+          text: "DarkEyes Store - Your one-stop shop for premium software and services.",
+          iconURL: "https://i.postimg.cc/G36H9Hhv/logo.png",
+        });
 
       const button = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
