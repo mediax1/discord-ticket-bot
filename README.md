@@ -84,6 +84,12 @@ Before running the bot, ensure you have the following installed:
 
 The bot includes robust error handling and will notify the developer of any errors during command execution. Users will see a friendly message and can continue using the bot without disruption.
 
+## Join My Discord
+
+Join my Discord server for support or to chat with the community: [DarkEyes Discord](https://discord.gg/darkeyes)
+
+You can also DM me on Discord: `@mediax1`
+
 ## Contributing
 
 1. Fork the repository.
@@ -95,7 +101,3 @@ The bot includes robust error handling and will notify the developer of any erro
 ## License
 
 This project is licensed under the MIT License.
-
-```
-
-```
