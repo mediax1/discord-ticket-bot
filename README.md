@@ -1,4 +1,3 @@
-````markdown
 # Discord Ticket Management Bot
 
 A robust and customizable Discord ticket management bot built with Node.js, Discord.js, and MongoDB. This bot helps streamline support by allowing users to open, close, and manage tickets with ease. It includes powerful features like transcript generation, feedback collection, role-based permissions, and error handling.
@@ -31,9 +30,8 @@ Before running the bot, ensure you have the following installed:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/your-repo-name.git
+   git clone https://github.com/mediax1/ticket-bot.git
    ```
-````
 
 2. Navigate into the project directory:
 
