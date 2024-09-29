@@ -6,6 +6,7 @@ const {
   GatewayIntentBits,
   REST,
   Routes,
+  ActivityType,
 } = require("discord.js");
 const { MongoClient } = require("mongodb");
 
@@ -14,9 +15,25 @@ const guildId = process.env.GUILD_ID;
 const token = process.env.DISCORD_TOKEN;
 const mongoUri = process.env.MONGO_URI;
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildPresences,
+  ],
+});
+
 client.commands = new Collection();
 let mongoClient;
+
+const statuses = [
+  { name: "🛒 DarkEyes Store", type: ActivityType.Watching },
+  { name: "🎟️ Support Tickets", type: ActivityType.Listening },
+  { name: "💰 Exclusive Deals", type: ActivityType.Watching },
+  { name: "🛠️ Admin Commands", type: ActivityType.Playing },
+  { name: "✨ New Updates", type: ActivityType.Watching },
+];
 
 (async () => {
   try {
@@ -41,8 +58,6 @@ let mongoClient;
 
     for (const file of commandFiles) {
       const command = require(`./commands/${folder}/${file}`);
-
-      // Ensure the command uses the correct format and has `data`
       if (command.data && typeof command.data.toJSON === "function") {
         client.commands.set(command.data.name, command);
         commands.push(command.data.toJSON());
@@ -58,7 +73,6 @@ let mongoClient;
 
   try {
     console.log("Refreshing application (/) commands.");
-
     const currentCommands = await rest.get(
       guildId
         ? Routes.applicationGuildCommands(clientId, guildId)
@@ -114,3 +128,15 @@ let mongoClient;
     process.exit(1);
   });
 })();
+
+client.once("ready", () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+
+  let index = 0;
+  setInterval(() => {
+    client.user.setActivity(statuses[index].name, {
+      type: statuses[index].type,
+    });
+    index = (index + 1) % statuses.length;
+  }, 10000);
+});
