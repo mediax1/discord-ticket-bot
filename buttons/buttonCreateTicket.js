@@ -47,6 +47,7 @@ module.exports = {
 
       const username = interaction.user.username;
 
+      // Create the ticket channel
       const ticketChannel = await interaction.guild.channels.create({
         name: `ticket-${username}`,
         type: 0,
@@ -73,11 +74,13 @@ module.exports = {
         ],
       });
 
+      // Store the original channel name when creating the ticket
       await ticketsCollection.insertOne({
         userId: interaction.user.id,
         channelId: ticketChannel.id,
         status: "open",
-        ticketName: `ticket-${username}`,
+        ticketName: `ticket-${username}`, // Store original name
+        originalName: ticketChannel.name, // Store the original name to use later
       });
 
       const welcomeEmbed = new EmbedBuilder()

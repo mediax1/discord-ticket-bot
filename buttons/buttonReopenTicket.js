@@ -31,6 +31,7 @@ module.exports = {
       });
     }
 
+    // Update ticket status to open and revert the channel name
     await ticketsCollection.updateOne(
       { channelId },
       { $set: { status: "open" } }
@@ -54,6 +55,11 @@ module.exports = {
         });
       }
 
+      // Revert the channel name back to its original state
+      const originalName = ticket.ticketName; // Original name stored when the ticket was closed
+      await interaction.channel.setName(originalName);
+
+      // Update the permission overwrites
       await interaction.channel.permissionOverwrites.edit(user.id, {
         ViewChannel: true,
         SendMessages: true,
@@ -72,7 +78,10 @@ module.exports = {
         ephemeral: true,
       });
     } catch (error) {
-      console.error("Error editing channel permissions:", error);
+      console.error(
+        "Error editing channel permissions or renaming the channel:",
+        error
+      );
       throw error;
     }
   },

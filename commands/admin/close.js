@@ -49,12 +49,35 @@ module.exports = {
       });
     }
 
+    // Store original channel name and update ticket status
+    const originalName = interaction.channel.name;
     await ticketsCollection.updateOne(
       { channelId },
-      { $set: { status: "closed" } }
+      { $set: { status: "closed", originalName } }
     );
 
+    // Try renaming the channel and updating permissions
     try {
+      await interaction.channel.setName(`closed-${originalName}`);
+    } catch (error) {
+      console.error("Error renaming channel:", error);
+
+      if (error.code === 50035) {
+        await interaction.followUp({
+          content:
+            "⚠️ Could not rename the channel due to Discord rate limits.",
+          ephemeral: true,
+        });
+      } else {
+        await interaction.followUp({
+          content: "⚠️ There was an error renaming the channel.",
+          ephemeral: true,
+        });
+      }
+    }
+
+    try {
+      // Update permission overwrites
       await interaction.channel.permissionOverwrites.edit(user.id, {
         ViewChannel: false,
       });
@@ -63,6 +86,7 @@ module.exports = {
         ViewChannel: true,
       });
 
+      // Embed and buttons for closed ticket
       const closeEmbed = new EmbedBuilder()
         .setColor(0xff0000)
         .setTitle("🔒 Ticket Closed")
@@ -86,13 +110,21 @@ module.exports = {
         components: [actionRow],
       });
 
+      // Confirm closure
       await interaction.reply({
         content: "✅ Ticket closed successfully.",
         ephemeral: true,
       });
     } catch (error) {
       console.error("Error closing ticket:", error);
-      throw error;
+
+      // Inform user if there was an issue
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({
+          content: "❗ There was an error closing the ticket.",
+          ephemeral: true,
+        });
+      }
     }
   },
 };

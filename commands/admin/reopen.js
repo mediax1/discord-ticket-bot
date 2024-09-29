@@ -51,6 +51,28 @@ module.exports = {
       { $set: { status: "open" } }
     );
 
+    // Try renaming the channel back to the original name
+    try {
+      const originalName =
+        ticket.originalName || `ticket-${user.user.username}`;
+      await interaction.channel.setName(originalName);
+    } catch (error) {
+      console.error("Error renaming channel:", error);
+
+      if (error.code === 50035) {
+        await interaction.followUp({
+          content:
+            "⚠️ Could not rename the channel due to Discord rate limits.",
+          ephemeral: true,
+        });
+      } else {
+        await interaction.followUp({
+          content: "⚠️ There was an error renaming the channel.",
+          ephemeral: true,
+        });
+      }
+    }
+
     try {
       await interaction.channel.permissionOverwrites.edit(user.id, {
         ViewChannel: true,
@@ -71,7 +93,13 @@ module.exports = {
       });
     } catch (error) {
       console.error("Error reopening ticket permissions:", error);
-      throw error;
+
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({
+          content: "❗ There was an error reopening the ticket.",
+          ephemeral: true,
+        });
+      }
     }
   },
 };

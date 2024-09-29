@@ -36,18 +36,23 @@ module.exports = {
       const panel = await panelsCollection.findOne({});
 
       if (!ticket || !panel) {
-        return interaction.followUp({
+        await interaction.followUp({
           content: "❗ This ticket does not exist or has already been closed.",
           ephemeral: true,
         });
+        return;
       }
 
+      // Update ticket status to closed and save original name for later
+      const originalName = interaction.channel.name;
       await ticketsCollection.updateOne(
         { channelId },
-        { $set: { status: "closed" } }
+        { $set: { status: "closed", originalName } }
       );
 
       try {
+        await interaction.channel.setName(`closed-${originalName}`);
+
         await interaction.channel.permissionOverwrites.edit(ticket.userId, {
           ViewChannel: false,
         });
@@ -55,13 +60,16 @@ module.exports = {
           ViewChannel: true,
         });
       } catch (error) {
-        console.error("Error editing channel permissions:", error);
-        return interaction.followUp({
-          content: "❗ There was an error updating the channel permissions.",
+        console.error("Error updating channel name or permissions:", error);
+        await interaction.followUp({
+          content:
+            "❗ There was an error updating the channel name or permissions.",
           ephemeral: true,
         });
+        return;
       }
 
+      // Send confirmation embed with action buttons
       const closeEmbed = new EmbedBuilder()
         .setColor(0xff0000)
         .setTitle("🔒 Ticket Closed")
@@ -85,14 +93,21 @@ module.exports = {
         components: [actionRow],
       });
 
-      // Follow-up confirmation message
+      // Ensure the follow-up is properly sent
       await interaction.followUp({
-        content: "✅ The ticket has been closed successfully.",
+        content: "✅ Ticket closed successfully.",
         ephemeral: true,
       });
     } catch (error) {
       console.error("Error closing ticket:", error);
-      throw error;
+
+      // Catch-all for failed interaction handling
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({
+          content: "❗ There was an error closing the ticket.",
+          ephemeral: true,
+        });
+      }
     }
   },
 };
