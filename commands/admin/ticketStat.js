@@ -8,11 +8,11 @@ module.exports = {
   adminOnly: true,
 
   async execute(interaction) {
-    const mongoClient = interaction.client.mongoClient;
-    const db = mongoClient.db("ticketBotDB");
-    const ticketsCollection = db.collection("tickets");
-
     try {
+      const mongoClient = interaction.client.mongoClient;
+      const db = mongoClient.db("ticketBotDB");
+      const ticketsCollection = db.collection("tickets");
+
       const openTicketsCount = await ticketsCollection.countDocuments({
         status: "open",
       });
@@ -38,10 +38,7 @@ module.exports = {
       await interaction.reply({ embeds: [statsEmbed], ephemeral: true });
     } catch (error) {
       console.error("Error fetching ticket statistics:", error);
-      await interaction.reply({
-        content: "❗ There was an error fetching ticket statistics.",
-        ephemeral: true,
-      });
+      throw error;
     }
   },
 };

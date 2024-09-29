@@ -22,7 +22,6 @@ let mongoClient;
   try {
     mongoClient = new MongoClient(mongoUri, {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
     });
     await mongoClient.connect();
     client.mongoClient = mongoClient;
@@ -39,14 +38,17 @@ let mongoClient;
     const commandFiles = fs
       .readdirSync(`./commands/${folder}`)
       .filter((file) => file.endsWith(".js"));
+
     for (const file of commandFiles) {
       const command = require(`./commands/${folder}/${file}`);
-      if (command.data && command.data.name) {
+
+      // Ensure the command uses the correct format and has `data`
+      if (command.data && typeof command.data.toJSON === "function") {
         client.commands.set(command.data.name, command);
         commands.push(command.data.toJSON());
       } else {
         console.warn(
-          `Command file ${file} is missing required 'data' or 'name'.`
+          `Command ${file} is missing a valid 'data' property or 'toJSON' method.`
         );
       }
     }
@@ -109,6 +111,6 @@ let mongoClient;
 
   client.login(token).catch((err) => {
     console.error("Discord login failed:", err);
-    process.exit(1); // Exit process if login fails
+    process.exit(1);
   });
 })();

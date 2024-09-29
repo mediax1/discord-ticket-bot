@@ -34,37 +34,36 @@ module.exports = {
   adminOnly: true,
 
   async execute(interaction) {
-    const adminRoleId = process.env.ADMIN_ROLE_ID || "YOUR_ADMIN_ROLE_ID";
-    const isAdmin =
-      interaction.member.permissions.has("Administrator") ||
-      interaction.member.roles.cache.has(adminRoleId);
-
-    if (!isAdmin) {
-      return interaction.reply({
-        content: "🚫 You do not have permission to use this command.",
-        ephemeral: true,
-      });
-    }
-
-    const panelChannel = interaction.options.getChannel("channel");
-    const categoryId = interaction.options.getString("categoryid");
-    const transcriptChannelId = interaction.options.getString(
-      "transcript_channel_id"
-    );
-
-    if (!panelChannel.isTextBased()) {
-      return interaction.reply({
-        content: "❗ The specified channel is not a valid text channel.",
-        ephemeral: true,
-      });
-    }
-
     try {
+      const adminRoleId = process.env.ADMIN_ROLE_ID || "YOUR_ADMIN_ROLE_ID";
+      const isAdmin =
+        interaction.member.permissions.has("Administrator") ||
+        interaction.member.roles.cache.has(adminRoleId);
+
+      if (!isAdmin) {
+        return interaction.reply({
+          content: "🚫 You do not have permission to use this command.",
+          ephemeral: true,
+        });
+      }
+
+      const panelChannel = interaction.options.getChannel("channel");
+      const categoryId = interaction.options.getString("categoryid");
+      const transcriptChannelId = interaction.options.getString(
+        "transcript_channel_id"
+      );
+
+      if (!panelChannel.isTextBased()) {
+        return interaction.reply({
+          content: "❗ The specified channel is not a valid text channel.",
+          ephemeral: true,
+        });
+      }
+
       const mongoClient = interaction.client.mongoClient;
       const db = mongoClient.db("ticketBotDB");
       const panelsCollection = db.collection("panels");
 
-      // Clear existing panel data and insert new panel information
       await panelsCollection.deleteMany({});
       await panelsCollection.insertOne({
         categoryId: categoryId,
@@ -91,11 +90,7 @@ module.exports = {
       });
     } catch (error) {
       console.error("Error setting up ticket panel:", error);
-      await interaction.reply({
-        content:
-          "❗ There was an error setting up the ticket panel. Please try again.",
-        ephemeral: true,
-      });
+      throw error;
     }
   },
 };

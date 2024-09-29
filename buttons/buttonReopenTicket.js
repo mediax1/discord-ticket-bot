@@ -23,6 +23,7 @@ module.exports = {
       channelId,
       status: "closed",
     });
+
     if (!ticket) {
       return interaction.reply({
         content: "❗ This ticket is already open or does not exist.",
@@ -36,27 +37,43 @@ module.exports = {
     );
 
     try {
-      await interaction.channel.permissionOverwrites.edit(ticket.userId, {
+      const user = await interaction.guild.members.fetch(ticket.userId);
+      const adminRole = interaction.guild.roles.cache.get(adminRoleId);
+
+      if (!user) {
+        return interaction.reply({
+          content: "❗ Ticket creator not found.",
+          ephemeral: true,
+        });
+      }
+
+      if (!adminRole) {
+        return interaction.reply({
+          content: "❗ Admin role not found.",
+          ephemeral: true,
+        });
+      }
+
+      await interaction.channel.permissionOverwrites.edit(user.id, {
         ViewChannel: true,
         SendMessages: true,
       });
-      await interaction.channel.permissionOverwrites.edit(adminRoleId, {
+
+      await interaction.channel.permissionOverwrites.edit(adminRole.id, {
         ViewChannel: true,
+      });
+
+      await interaction.channel.send({
+        content: "🔓 The ticket has been reopened.",
+      });
+
+      await interaction.reply({
+        content: "✅ The ticket has been successfully reopened.",
+        ephemeral: true,
       });
     } catch (error) {
       console.error("Error editing channel permissions:", error);
-      return interaction.reply({
-        content: "❗ There was an error updating the channel permissions.",
-        ephemeral: true,
-      });
+      throw error;
     }
-
-    await interaction.channel.send({
-      content: "🔓 The ticket has been reopened.",
-    });
-    await interaction.reply({
-      content: "✅ The ticket has been successfully reopened.",
-      ephemeral: true,
-    });
   },
 };

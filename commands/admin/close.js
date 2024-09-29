@@ -1,9 +1,9 @@
 const {
-  SlashCommandBuilder,
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  SlashCommandBuilder,
 } = require("discord.js");
 
 module.exports = {
@@ -31,14 +31,36 @@ module.exports = {
       });
     }
 
+    const user = await interaction.guild.members.fetch(ticket.userId);
+    const adminRoleId = process.env.ADMIN_ROLE_ID || "YOUR_ADMIN_ROLE_ID";
+    const adminRole = interaction.guild.roles.cache.get(adminRoleId);
+
+    if (!user) {
+      return interaction.reply({
+        content: "❗ Could not find the ticket owner.",
+        ephemeral: true,
+      });
+    }
+
+    if (!adminRole) {
+      return interaction.reply({
+        content: "❗ Could not find the admin role.",
+        ephemeral: true,
+      });
+    }
+
     await ticketsCollection.updateOne(
       { channelId },
       { $set: { status: "closed" } }
     );
 
     try {
-      await interaction.channel.permissionOverwrites.edit(ticket.userId, {
+      await interaction.channel.permissionOverwrites.edit(user.id, {
         ViewChannel: false,
+      });
+
+      await interaction.channel.permissionOverwrites.edit(adminRole.id, {
+        ViewChannel: true,
       });
 
       const closeEmbed = new EmbedBuilder()
@@ -70,10 +92,7 @@ module.exports = {
       });
     } catch (error) {
       console.error("Error closing ticket:", error);
-      return interaction.reply({
-        content: "❗ There was an error closing the ticket.",
-        ephemeral: true,
-      });
+      throw error;
     }
   },
 };
