@@ -110,9 +110,29 @@ module.exports = {
 
       const user = await interaction.guild.members.fetch(ticket.userId);
       if (user) {
-        await user.send({
-          content: `🔒 Your ticket has been deleted. We would love to hear your feedback! Please use the command \`/feedback\` in any server channel to provide your feedback.`,
-        });
+        const feedbackEmbed = new EmbedBuilder()
+          .setColor(0xff4500)
+          .setTitle("🔒 Ticket Closed")
+          .setDescription(
+            "Your ticket has been successfully **closed**. We'd love to hear from you to help improve our services!"
+          )
+          .addFields(
+            {
+              name: "📋 Share Your Feedback",
+              value: `Please use the \`/feedback\` command in any server channel to let us know how we did! Your feedback helps us improve.`,
+            },
+            {
+              name: "💬 Need Further Assistance?",
+              value: `If you need more help, feel free to open a new ticket at any time. We're always here to help!`,
+            }
+          )
+          .setFooter({
+            text: "Thank you for reaching out to DarkEyes Store Support",
+            iconURL: "https://i.postimg.cc/G36H9Hhv/logo.png",
+          })
+          .setTimestamp();
+
+        await user.send({ embeds: [feedbackEmbed] });
         console.log(`Feedback request sent to ${user.user.tag}`);
       }
 

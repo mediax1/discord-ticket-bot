@@ -39,7 +39,12 @@ module.exports = {
         for (const file of buttonFiles) {
           const buttonHandler = require(`../buttons/${file}`);
 
-          if (interaction.customId === buttonHandler.customId) {
+          if (buttonHandler.customId instanceof RegExp) {
+            if (buttonHandler.customId.test(interaction.customId)) {
+              await buttonHandler.execute(interaction, client);
+              break;
+            }
+          } else if (interaction.customId === buttonHandler.customId) {
             await buttonHandler.execute(interaction, client);
             break;
           }

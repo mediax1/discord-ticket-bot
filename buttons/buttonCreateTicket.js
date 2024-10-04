@@ -7,18 +7,22 @@ const {
 } = require("discord.js");
 
 module.exports = {
-  customId: "create_ticket",
+  customId: /^create_ticket_\d+$/,
   async execute(interaction, client) {
     try {
+      console.log(
+        `Interaction received with customId: ${interaction.customId}`
+      );
+
       const mongoClient = interaction.client.mongoClient;
       const db = mongoClient.db("ticketBotDB");
-      const panelsCollection = db.collection("panels");
       const ticketsCollection = db.collection("tickets");
 
       const existingTicket = await ticketsCollection.findOne({
         userId: interaction.user.id,
         status: "open",
       });
+
       if (existingTicket) {
         return interaction.reply({
           content: "🚨 You already have an open ticket!",
@@ -26,18 +30,19 @@ module.exports = {
         });
       }
 
-      const panelData = await panelsCollection.findOne();
-      if (!panelData) {
+      const categoryId = interaction.customId.split("_")[2];
+      console.log(`Creating ticket in category: ${categoryId}`);
+
+      if (!categoryId) {
         return interaction.reply({
-          content:
-            "❗ Category ID not found. Please set up the ticket panel again.",
+          content: "❗ Invalid category. Please try again.",
           ephemeral: true,
         });
       }
-      const categoryId = panelData.categoryId;
 
       const adminRoleId = process.env.ADMIN_ROLE_ID || "YOUR_ADMIN_ROLE_ID";
       const adminRole = interaction.guild.roles.cache.get(adminRoleId);
+
       if (!adminRole) {
         return interaction.reply({
           content: "❗ Admin role not found. Please check the role ID.",
@@ -47,7 +52,6 @@ module.exports = {
 
       const username = interaction.user.username;
 
-      // Create the ticket channel
       const ticketChannel = await interaction.guild.channels.create({
         name: `ticket-${username}`,
         type: 0,
@@ -74,13 +78,12 @@ module.exports = {
         ],
       });
 
-      // Store the original channel name when creating the ticket
       await ticketsCollection.insertOne({
         userId: interaction.user.id,
         channelId: ticketChannel.id,
         status: "open",
-        ticketName: `ticket-${username}`, // Store original name
-        originalName: ticketChannel.name, // Store the original name to use later
+        ticketName: `ticket-${username}`,
+        originalName: ticketChannel.name,
       });
 
       const welcomeEmbed = new EmbedBuilder()
@@ -109,7 +112,12 @@ module.exports = {
       });
     } catch (error) {
       console.error("Error creating the ticket channel:", error);
-      throw error;
+
+      await interaction.reply({
+        content:
+          "❗ There was an error processing your request. Please try again later.",
+        ephemeral: true,
+      });
     }
   },
 };

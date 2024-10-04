@@ -8,7 +8,8 @@ A robust and customizable Discord ticket management bot built with Node.js, Disc
 - 📝 **Transcript Generation**: Generate and send ticket transcripts automatically.
 - ⭐ **Feedback Collection**: Collect user feedback after ticket closure.
 - 🛡️ **Role-based Permissions**: Ensure only authorized roles can access admin commands.
-- ⚙️ **Dynamic Ticket Panels**: Easily set up ticket panels with buttons for user interaction.
+- ⚙️ **Dynamic Ticket Panels with Button Colors**: Easily set up ticket panels with up to 4 buttons where each button can have custom colors (`primary`, `secondary`, `success`, `danger`) for visual customization.
+- 📊 **Ticket Statistics**: View server-wide ticket statistics, including open and closed tickets.
 - 🚨 **Comprehensive Error Handling**: Notifies the developer of errors and handles user-facing issues gracefully.
 
 ## Tech Stack
@@ -66,13 +67,13 @@ Before running the bot, ensure you have the following installed:
 
 2. The bot will automatically register commands and start listening for interactions.
 
-3. Use `/ticketpanel` to set up a dynamic ticket panel where users can create tickets.
+3. Use `/ticketpanel` to set up a dynamic ticket panel where users can create tickets with customizable button colors.
 
 4. Admins can use `/close`, `/delete`, `/reopen`, and `/ticketstats` to manage tickets.
 
 ## Commands
 
-- `/ticketpanel`: Set up a panel for users to open tickets.
+- `/ticketpanel`: Set up a panel for users to open tickets with up to 4 buttons, each with customizable colors (`primary`, `secondary`, `success`, `danger`).
 - `/close`: Close the current ticket.
 - `/delete`: Delete a ticket and optionally request feedback.
 - `/reopen`: Reopen a closed ticket.
