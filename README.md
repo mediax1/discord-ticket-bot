@@ -87,7 +87,7 @@ The bot includes robust error handling and will notify the developer of any erro
 
 ## Join My Discord
 
-Join my Discord server for support or to chat with the community: [DarkEyes Discord](https://discord.gg/darkeyes)
+Join my Discord server for support or to chat with the community: [Dynexus Discord](https://discord.gg/dynexus)
 
 You can also DM me on Discord: `@mediax1`
 
